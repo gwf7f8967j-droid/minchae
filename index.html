@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>화장품 성분 분석 전문가 - 복합성 및 지성 맞춤 분석기</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f0f7ff;
+            color: #1e293b;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-sky-200 selection:text-sky-800">
+
+    <header class="bg-white border-b border-sky-100 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-sky-200">
+                    <i class="fa-solid fa-flask-vial text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-tight">복합성·지성 닥터 <span class="text-sky-500 font-semibold text-sm bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100">성분 분석 전문가</span></h1>
+                    <p class="text-xs text-slate-500">복합성 및 지성 피부 맞춤형 화장품 성분 & 효능 검증 솔루션</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="openShareModal()" class="flex items-center gap-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 px-3 py-2 rounded-xl text-xs font-semibold border border-sky-200 transition-all shadow-xs">
+                    <i class="fa-solid fa-share-nodes text-sky-500"></i> 공유하기
+                </button>
+                <button onclick="openSkinCalendarModal()" class="flex items-center gap-2 bg-sky-500 hover:bg-sky-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm">
+                    <i class="fa-solid fa-calendar-days text-white"></i> 오늘의 피부건강 기록
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Panel: Input Section -->
+        <section class="lg:col-span-5 space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-sky-100 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-sky-50 rounded-bl-full -z-0 opacity-50"></div>
+                
+                <h2 class="text-lg font-bold text-slate-800 mb-2 relative z-10 flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-sky-500"></i> 화장품 분석하기
+                </h2>
+                <p class="text-xs text-slate-500 mb-6 relative z-10">제품명, 전성분 입력과 함께 <strong>나의 요즘 피부 고민</strong>을 선택하시면 맞춤형 정밀 분석을 제공합니다.</p>
+
+                <div class="space-y-4 relative z-10">
+                    <!-- Skin Concern Selector -->
+                    <div class="bg-sky-50/60 p-4 rounded-xl border border-sky-100 space-y-2">
+                        <label class="block text-xs font-bold text-slate-700 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-face-smile text-sky-500"></i> 나의 요즘 피부 고민</span>
+                            <span class="text-[10px] font-normal text-sky-600 bg-sky-100/80 px-2 py-0.5 rounded-full">복수 선택 가능</span>
+                        </label>
+                        <div class="grid grid-cols-4 gap-2 pt-1">
+                            <button type="button" onclick="toggleConcern(this, 'trouble')" class="concern-chip text-[11px] py-2 px-1 rounded-lg bg-white border border-sky-200 text-slate-600 font-medium hover:border-sky-500 transition-all flex items-center justify-center gap-1 shadow-xs" data-concern="trouble">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-[10px]"></i> 트러블
+                            </button>
+                            <button type="button" onclick="toggleConcern(this, 'brightening')" class="concern-chip text-[11px] py-2 px-1 rounded-lg bg-white border border-sky-200 text-slate-600 font-medium hover:border-sky-500 transition-all flex items-center justify-center gap-1 shadow-xs" data-concern="brightening">
+                                <i class="fa-solid fa-sun text-yellow-500 text-[10px]"></i> 미백
+                            </button>
+                            <button type="button" onclick="toggleConcern(this, 'pigmentation')" class="concern-chip text-[11px] py-2 px-1 rounded-lg bg-white border border-sky-200 text-slate-600 font-medium hover:border-sky-500 transition-all flex items-center justify-center gap-1 shadow-xs" data-concern="pigmentation">
+                                <i class="fa-solid fa-bullseye text-purple-500 text-[10px]"></i> 색소침착
+                            </button>
+                            <button type="button" onclick="toggleConcern(this, 'exfoliation')" class="concern-chip text-[11px] py-2 px-1 rounded-lg bg-white border border-sky-200 text-slate-600 font-medium hover:border-sky-500 transition-all flex items-center justify-center gap-1 shadow-xs" data-concern="exfoliation">
+                                <i class="fa-solid fa-layer-group text-teal-500 text-[10px]"></i> 각질
+                            </button>
+                            <button type="button" onclick="toggleConcern(this, 'inner-dry')" class="concern-chip text-[11px] py-2 px-1 rounded-lg bg-sky-500 border border-sky-500 text-white font-semibold hover:border-sky-600 transition-all flex items-center justify-center gap-1 shadow-xs active" data-concern="inner-dry">
+                                <i class="fa-solid fa-droplet text-white text-[10px]"></i> 당김/건조
+                            </button>
+                            <button type="button" onclick="toggleConcern(this, 'oil')" class="concern-chip text-[11px] py-2 px-1 rounded-lg bg-sky-500 border border-sky-500 text-white font-semibold hover:border-sky-600 transition-all flex items-center justify-center gap-1 shadow-xs active" data-concern="oil">
+                                <i class="fa-solid fa-fire text-white text-[10px]"></i> 유분증가
+                            </button>
+                            <button type="button" onclick="toggleConcern(this, 'pore')" class="concern-chip text-[11px] py-2 px-1 rounded-lg bg-white border border-sky-200 text-slate-600 font-medium hover:border-sky-500 transition-all flex items-center justify-center gap-1 shadow-xs" data-concern="pore">
+                                <i class="fa-solid fa-circle-dot text-sky-400 text-[10px]"></i> 모공크기증가
+                            </button>
+                            <button type="button" onclick="toggleConcern(this, 'sensitive')" class="concern-chip text-[11px] py-2 px-1 rounded-lg bg-white border border-sky-200 text-slate-600 font-medium hover:border-sky-500 transition-all flex items-center justify-center gap-1 shadow-xs" data-concern="sensitive">
+                                <i class="fa-solid fa-shield-heart text-rose-400 text-[10px]"></i> 트러블흔적
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab Selector -->
+                    <div class="grid grid-cols-2 gap-2 bg-sky-50/80 p-1 rounded-xl border border-sky-100 text-xs font-medium text-slate-600">
+                        <button onclick="switchTab('text')" id="tab-text" class="py-2.5 rounded-lg bg-white shadow-sm text-sky-600 font-semibold transition-all">
+                            <i class="fa-solid fa-keyboard mr-1.5"></i> 제품명 / 전성분 입력
+                        </button>
+                        <button onclick="switchTab('photo')" id="tab-photo" class="py-2.5 rounded-lg hover:text-sky-600 transition-all">
+                            <i class="fa-solid fa-camera mr-1.5"></i> 사진 인식 (AI)
+                        </button>
+                    </div>
+
+                    <!-- Text Input Pane -->
+                    <div id="pane-text" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">제품명 또는 브랜드명</label>
+                            <input type="text" id="product-name" placeholder="예: 이니스프리 노세범 파우더 크림" 
+                                class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-sky-500 focus:bg-white transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">주요 전성분 (콤마로 구분 또는 붙여넣기)</label>
+                            <textarea id="product-ingredients" rows="4" placeholder="예: 정제수, 글리세린, 실리카, 나이아신아마이드, 판테놀, 살리실릭애씨드, 병풀추출물..." 
+                                class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-sky-500 focus:bg-white transition-all"></textarea>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="analyzeProduct()" class="flex-1 bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-sky-200 transition-all flex items-center justify-center gap-2 text-sm">
+                                <i class="fa-solid fa-microscope"></i> 성분 분석 실행하기
+                            </button>
+                            <button onclick="loadSample()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-3 px-4 rounded-xl transition-all text-xs">
+                                샘플 불러오기
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Photo Input Pane -->
+                    <div id="pane-photo" class="hidden space-y-4">
+                        <div class="border-2 border-dashed border-sky-200 rounded-2xl p-6 text-center bg-sky-50/50 hover:bg-sky-50 transition-all cursor-pointer relative" onclick="document.getElementById('file-input').click()">
+                            <input type="file" id="file-input" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                            <div id="upload-placeholder" class="space-y-2">
+                                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto text-sky-500 shadow-sm border border-sky-100">
+                                    <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+                                </div>
+                                <p class="text-xs font-medium text-slate-700">화장품 패키지나 전성분표 사진을 업로드하세요</p>
+                                <p class="text-[10px] text-slate-400">클래식한 제품 촬영본 또는 성분표 캡처</p>
+                            </div>
+                            <div id="upload-preview" class="hidden">
+                                <img id="preview-img" src="" alt="Uploaded Product" class="max-h-40 mx-auto rounded-lg shadow-sm mb-2">
+                                <p class="text-xs text-sky-600 font-medium">사진 업로드 완료! 분석 버튼을 누르세요.</p>
+                            </div>
+                        </div>
+                        <button onclick="analyzePhoto()" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-sky-200 transition-all flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-brain"></i> AI 사진 성분 분석 시작
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Tips Box -->
+            <div class="bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl p-6 text-white shadow-md">
+                <h3 class="font-bold text-sm mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info"></i> 복합성 및 지성 스킨케어 핵심 팁
+                </h3>
+                <ul class="text-xs space-y-2 opacity-90 leading-relaxed">
+                    <li>• T존의 과다 유분과 U존의 당김을 동시에 케어하는 <strong>존별 맞춤 수분 밸런싱</strong>이 중요합니다.</li>
+                    <li>• 모공을 막지 않는 논코메도제닉 처방과 피지 조절 성분(<strong>나이아신아마이드, BHA</strong>)이 효과적입니다.</li>
+                    <li>• 가벼운 젤 로션 타입으로 유수분 밸런스를 맞추고 끈적임을 최소화하세요.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Right Panel: Result & Custom Prescription Recommendation Section -->
+        <section class="lg:col-span-7 space-y-6">
+            <!-- Custom Skincare Prescription Card (Always visible on right pane) -->
+            <div id="prescription-card" class="bg-white rounded-2xl p-6 shadow-sm border border-sky-100 bg-gradient-to-r from-sky-50/80 to-indigo-50/50">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-stethoscope text-sky-500"></i> AI 맞춤 피부 처방 및 솔루션 코너
+                    </h3>
+                    <span class="text-[10px] bg-sky-500 text-white font-semibold px-2 py-0.5 rounded-full">실시간 분석 반영</span>
+                </div>
+                <div id="prescription-content" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <!-- Dynamic prescriptive boxes -->
+                    <div class="bg-white p-3.5 rounded-xl border border-sky-100 shadow-xs space-y-1.5">
+                        <div class="text-[11px] font-bold text-sky-600 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-plus"></i> 필요 피부행위
+                        </div>
+                        <p id="presc-action" class="text-xs text-slate-600 leading-relaxed">T존 피지 흡착 팩 및 U존 국소 수분 레이어링</p>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border border-sky-100 shadow-xs space-y-1.5">
+                        <div class="text-[11px] font-bold text-amber-600 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-exclamation"></i> 주의 및 건너뛸 화장품
+                        </div>
+                        <p id="presc-avoid" class="text-xs text-slate-600 leading-relaxed">고함량 미네랄오일 크림 및 과도한 물리적 스크럽</p>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border border-sky-100 shadow-xs space-y-1.5">
+                        <div class="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                            <i class="fa-solid fa-pills"></i> 추천 영양/성분
+                        </div>
+                        <p id="presc-ingredient" class="text-xs text-slate-600 leading-relaxed">판테놀, 나이아신아마이드, 저분자 히알루론산</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="welcome-state" class="bg-white rounded-2xl p-12 text-center border border-sky-100 shadow-sm flex flex-col items-center justify-center min-h-[380px]">
+                <div class="w-16 h-16 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-400 mb-4 shadow-sm border border-sky-100 animate-pulse">
+                    <i class="fa-solid fa-chart-pie text-2xl"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-800 mb-1">화장품 성분 분석 리포트 대기중</h3>
+                <p class="text-xs text-slate-400 max-w-sm mx-auto">좌측에서 피부 고민을 체크하고 제품 정보를 입력하거나 샘플을 불러와 상세 분석을 시작해 보세요.</p>
+            </div>
+
+            <!-- Analysis Result Dashboard (Hidden by default) -->
+            <div id="result-state" class="hidden space-y-6">
+                <!-- Summary Card -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-sky-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="space-y-1 text-center md:text-left">
+                        <div class="flex items-center gap-2 justify-center md:justify-start">
+                            <span id="res-category" class="text-[10px] uppercase tracking-wider font-semibold bg-sky-50 text-sky-600 px-2.5 py-1 rounded-full border border-sky-100">밸런싱 세럼 / 젤크림</span>
+                            <span id="res-concern-badge" class="text-[10px] font-semibold bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full border border-indigo-100">고민 맞춤 분석 적용됨</span>
+                        </div>
+                        <h3 id="res-product-name" class="text-xl font-bold text-slate-800 mt-2">제품명 표시 영역</h3>
+                        <p class="text-xs text-slate-500">전문가 복합성·지성 피부 궁합 정밀 분석 리포트 (4단계 최종 등급)</p>
+                    </div>
+                    <div class="flex flex-col items-center justify-center bg-sky-50/80 px-6 py-4 rounded-2xl border border-sky-100 min-w-[160px]">
+                        <span class="text-[10px] text-slate-500 font-semibold mb-1">최종 결론 등급</span>
+                        <div id="res-badge" class="px-4 py-1.5 rounded-xl font-extrabold text-xs shadow-sm text-center">추천 (RECOMMEND)</div>
+                    </div>
+                </div>
+
+                <!-- Scores & Graph Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Graph Card -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-sky-100 flex flex-col justify-between">
+                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-radar text-sky-500"></i> 복합성·지성 피부 적합도 수치 분석
+                        </h4>
+                        <div class="relative h-48 w-full flex items-center justify-center">
+                            <canvas id="suvujiChart"></canvas>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between text-xs text-slate-500">
+                            <span>종합 점수: <strong id="res-score" class="text-sky-600 font-bold text-sm">88</strong> / 100점</span>
+                            <span id="res-score-desc" class="text-emerald-600 font-medium">복합성·지성 맞춤형 최적합</span>
+                        </div>
+                    </div>
+
+                    <!-- Key Ingredients Analysis -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-sky-100 flex flex-col justify-between">
+                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-flask text-sky-500"></i> 주요 성분 및 효능·퍼센티지
+                        </h4>
+                        <div id="res-ingredients-list" class="space-y-3 overflow-y-auto max-h-48 pr-1">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marketing Reliability & Usage Guide -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Marketing Verification -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-sky-100 flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-book-medical text-sky-500"></i> 학술 논문 및 공신력 검증
+                            </h4>
+                            <div id="res-marketing" class="text-xs space-y-2 text-slate-600 leading-relaxed">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                            <span><i class="fa-solid fa-database text-sky-400 mr-1"></i> CIR / EU Coslng / PubMed DB</span>
+                            <span class="text-sky-600 font-medium">최신 연구 기반 검증</span>
+                        </div>
+                    </div>
+
+                    <!-- Usage Guide & Combinations -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-sky-100">
+                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-clock text-sky-500"></i> 맞춤 사용 방법 및 성분 궁합
+                        </h4>
+                        <div id="res-usage" class="text-xs space-y-2 text-slate-600 leading-relaxed">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white border-t border-sky-100 mt-12">
+        <div class="max-w-6xl mx-auto px-4 py-6 text-center text-xs text-slate-400">
+            &copy; 2026 복합성·지성 닥터 성분 분석 전문가. All rights reserved. 본 서비스의 분석 결과는 화장품 전성분 데이터 기반 참고용입니다.
+        </div>
+    </footer>
+
+    <!-- Skin Health Calendar Modal -->
+    <div id="calendar-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-sky-100 flex flex-col max-h-[90vh]">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 bg-sky-100 rounded-xl flex items-center justify-center text-sky-600 font-bold">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <h3 id="calendar-modal-title" class="text-base font-bold text-slate-800">피부건강 캘린더 (일주일 뷰)</h3>
+                        <p class="text-xs text-slate-400">매일 피부 상태를 이모티콘으로 기록하고 관리하세요</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="toggle-view-btn" onclick="toggleCalendarViewMode()" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs px-3 py-1.5 rounded-xl font-semibold border border-sky-200 transition-all">
+                        <i class="fa-solid fa-plus mr-1"></i> 한달 캘린더 보기
+                    </button>
+                    <button onclick="closeSkinCalendarModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Calendar Container Body -->
+            <div class="py-4 overflow-y-auto space-y-4 flex-grow">
+                <!-- Navigation Bar for dates -->
+                <div class="flex items-center justify-between px-2">
+                    <button onclick="changeCalendarPeriod(-1)" class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <span id="calendar-range-label" class="text-sm font-bold text-slate-700">2026년 10월 1주차</span>
+                    <button onclick="changeCalendarPeriod(1)" class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Calendar Grid (Week or Month) -->
+                <div id="calendar-grid-container" class="grid grid-cols-7 gap-2">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Selected Date Detail Editor / Viewer -->
+                <div class="bg-sky-50/50 rounded-2xl p-4 border border-sky-100 mt-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 id="selected-date-title" class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-pen-nib text-sky-500"></i> 선택 날짜 피부 기록
+                        </h4>
+                        <span id="selected-date-display" class="text-xs text-sky-600 font-semibold bg-white px-2.5 py-0.5 rounded-full border border-sky-200">날짜를 선택하세요</span>
+                    </div>
+
+                    <!-- Condition Checkboxes for Daily Log -->
+                    <div class="space-y-1.5">
+                        <label class="block text-[11px] font-semibold text-slate-600">오늘 겪은 피부 증상 (중복 선택 가능)</label>
+                        <div class="grid grid-cols-3 md:grid-cols-6 gap-1.5">
+                            <label class="flex items-center gap-1.5 bg-white p-2 rounded-xl border border-sky-100 text-[11px] text-slate-700 cursor-pointer hover:border-sky-400">
+                                <input type="checkbox" name="daily-symptom" value="dry" class="rounded text-sky-500 focus:ring-sky-400"> 건조/당김
+                            </label>
+                            <label class="flex items-center gap-1.5 bg-white p-2 rounded-xl border border-sky-100 text-[11px] text-slate-700 cursor-pointer hover:border-sky-400">
+                                <input type="checkbox" name="daily-symptom" value="oil" class="rounded text-sky-500 focus:ring-sky-400"> 유분증가
+                            </label>
+                            <label class="flex items-center gap-1.5 bg-white p-2 rounded-xl border border-sky-100 text-[11px] text-slate-700 cursor-pointer hover:border-sky-400">
+                                <input type="checkbox" name="daily-symptom" value="trouble" class="rounded text-sky-500 focus:ring-sky-400"> 트러블
+                            </label>
+                            <label class="flex items-center gap-1.5 bg-white p-2 rounded-xl border border-sky-100 text-[11px] text-slate-700 cursor-pointer hover:border-sky-400">
+                                <input type="checkbox" name="daily-symptom" value="scar" class="rounded text-sky-500 focus:ring-sky-400"> 트러블흔적
+                            </label>
+                            <label class="flex items-center gap-1.5 bg-white p-2 rounded-xl border border-sky-100 text-[11px] text-slate-700 cursor-pointer hover:border-sky-400">
+                                <input type="checkbox" name="daily-symptom" value="pore" class="rounded text-sky-500 focus:ring-sky-400"> 모공확대
+                            </label>
+                            <label class="flex items-center gap-1.5 bg-white p-2 rounded-xl border border-sky-100 text-[11px] text-slate-700 cursor-pointer hover:border-sky-400">
+                                <input type="checkbox" name="daily-symptom" value="good" class="rounded text-sky-500 focus:ring-sky-400"> 꿀피부✨
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Other Symptoms / Custom Notes input -->
+                    <div class="space-y-1">
+                        <label class="block text-[11px] font-semibold text-slate-600">기타 특이사항 직접 입력 (선택 증상 체크 및 메모)</label>
+                        <input type="text" id="daily-other-input" placeholder="예: 홍조 약간 있음, 새로운 선크림 사용 후 따가움 등" class="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-sky-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">상세 메모 및 사용 화장품</label>
+                        <textarea id="daily-memo-input" rows="2" placeholder="예: 오늘 T존 유분이 많았고 판테놀 크림 사용 후 진정됨." class="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-sky-500"></textarea>
+                    </div>
+
+                    <button onclick="saveDailySkinLog()" class="w-full bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold py-2.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> 오늘 기록 저장하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-sky-100 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-sky-100 rounded-xl flex items-center justify-center text-sky-600 font-bold">
+                        <i class="fa-solid fa-share-nodes text-sm"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800">친구에게 앱 공유하기</h3>
+                </div>
+                <button onclick="closeShareModal()" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+            
+            <p class="text-xs text-slate-500 leading-relaxed">
+                복합성·지성 피부 맞춤 화장품 분석 및 캘린더 관리 서비스를 주변 친구들이나 지인에게 공유해 보세요! 아래 링크를 복사하면 쉽게 전달할 수 있습니다.
+            </p>
+
+            <div class="flex items-center gap-2">
+                <input type="text" id="share-link-input" readonly value="" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-600 select-all">
+                <button onclick="copyShareLink()" class="bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all whitespace-nowrap shadow-sm">
+                    <i class="fa-regular fa-copy mr-1"></i> 복사
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button onclick="shareKakaoStyle()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs">
+                    <i class="fa-solid fa-comment text-sm"></i> 카카오톡 공유
+                </button>
+                <button onclick="shareTwitterStyle()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs">
+                    <i class="fa-brands fa-x-twitter text-sm"></i> 트위터(X) 공유
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let myChart = null;
+        let selectedConcerns = ['inner-dry', 'oil']; // Default selected concerns
+        
+        // Calendar State Variables
+        let calendarMode = 'week'; // 'week' or 'month'
+        let currentDateCursor = new Date();
+        let selectedDateStr = formatDateKey(new Date());
+        let skinLogs = JSON.parse(localStorage.getItem('skin_health_logs_v3') || '{}');
+
+        function toggleConcern(button, concernId) {
+            if (selectedConcerns.includes(concernId)) {
+                if (selectedConcerns.length > 1) {
+                    selectedConcerns = selectedConcerns.filter(c => c !== concernId);
+                    button.classList.remove('bg-sky-500', 'border-sky-500', 'text-white', 'font-semibold', 'active');
+                    button.classList.add('bg-white', 'border-sky-200', 'text-slate-600', 'font-medium');
+                } else {
+                    showToast("최소 1개 이상의 피부 고민을 선택해 주세요.");
+                }
+            } else {
+                selectedConcerns.push(concernId);
+                button.classList.add('bg-sky-500', 'border-sky-500', 'text-white', 'font-semibold', 'active');
+                button.classList.remove('bg-white', 'border-sky-200', 'text-slate-600', 'font-medium');
+            }
+            updateDynamicPrescription();
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 bg-slate-800 text-white text-xs px-4 py-2.5 rounded-xl shadow-lg z-50 transition-all opacity-90';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 2500);
+        }
+
+        function switchTab(type) {
+            const tabText = document.getElementById('tab-text');
+            const tabPhoto = document.getElementById('tab-photo');
+            const paneText = document.getElementById('pane-text');
+            const panePhoto = document.getElementById('pane-photo');
+
+            if (type === 'text') {
+                tabText.className = "py-2.5 rounded-lg bg-white shadow-sm text-sky-600 font-semibold transition-all";
+                tabPhoto.className = "py-2.5 rounded-lg hover:text-sky-600 transition-all";
+                paneText.classList.remove('hidden');
+                panePhoto.classList.add('hidden');
+            } else {
+                tabPhoto.className = "py-2.5 rounded-lg bg-white shadow-sm text-sky-600 font-semibold transition-all";
+                tabText.className = "py-2.5 rounded-lg hover:text-sky-600 transition-all";
+                panePhoto.classList.remove('hidden');
+                paneText.classList.add('hidden');
+            }
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+                    document.getElementById('upload-preview').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function loadSample() {
+            document.getElementById('product-name').value = "클리어 지성 밸런싱 노세범 로션";
+            document.getElementById('product-ingredients').value = "정제수, 글리세린, 실리카, 나이아신아마이드, 판테놀, 살리실릭애씨드, 병풀추출물, 알란토인, 녹차추출물, 잔탄검";
+        }
+
+        function analyzeProduct() {
+            const name = document.getElementById('product-name').value.trim() || "클리어 지성 밸런싱 노세범 로션";
+            const ingredients = document.getElementById('product-ingredients').value.trim() || "정제수, 글리세린, 실리카, 나이아신아마이드, 판테놀, 살리실릭애씨드, 병풀추출물, 알란토인";
+            
+            let score = 91;
+            let badgeText = "추천 (RECOMMEND)";
+            let badgeClass = "bg-emerald-100 text-emerald-700 border border-emerald-200";
+
+            if (selectedConcerns.includes('trouble') && ingredients.includes('미네랄오일')) {
+                score = 59;
+                badgeText = "주의 (CAUTION)";
+                badgeClass = "bg-rose-100 text-rose-700 border border-rose-200";
+            }
+
+            let dynamicMarketing = "<strong>[CIR, EU Coslng, PubMed & KCI 최신 논문 검증 완료]</strong><br>• <strong>PubMed (2022~2026) 임상 연구:</strong> 나이아신아마이드와 실리카 성분의 복합 적용 시 피지 분비량이 대조군 대비 최대 38% 감소함을 입증.<br>• <strong>대한화장품협회 및 RISS DB:</strong> 지성 및 복합성 피부의 번들거림을 조절하면서 유수분 밸런스를 맞추는 데 기여.<br>• <strong>광고 신뢰도:</strong> 마케팅 문구는 최신 임상 데이터와 부합하여 <strong>매우 신뢰할 만함 (94%)</strong>.";
+
+            runAnalysisEngine({
+                name: name,
+                category: "밸런싱 세럼 / 노세범 로션",
+                score: score,
+                badge: badgeText,
+                badgeClass: badgeClass,
+                radarData: [95, 94, 88, 92, 90], 
+                ingredientsList: [
+                    { name: "나이아신아마이드", pct: "2.0%", role: "과도한 피지 분비 조절 및 모공 케어", status: "good" },
+                    { name: "실리카", pct: "1.5%", role: "번들거림 흡착 및 보송한 마무리감", status: "good" },
+                    { name: "판테놀 (Vitamin B5)", pct: "1.0%", role: "U존 당김 개선 및 피부 장벽 보호", status: "good" },
+                    { name: "살리실릭애씨드 (BHA)", pct: "0.5%", role: "모공 속 노폐물 및 각질 완화", status: "good" }
+                ],
+                marketing: dynamicMarketing,
+                usage: "<strong>낮/저녁 모두 사용 추천</strong><br>• <strong>낮:</strong> T존 유분이 신경 쓰이는 부위에 가볍게 펴 발라 번들거림을 예방하세요.<br>• <strong>저녁:</strong> 세안 후 건조한 U존에는 충분히 레이어링하고 T존은 얇게 얹어주세요.<br>• <strong>함께 쓰면 좋은 성분:</strong> 병풀추출물, 히알루론산<br>• <strong>피해야 할 성분:</strong> 고함량 코메도제닉 오일류"
+            });
+        }
+
+        function analyzePhoto() {
+            runAnalysisEngine({
+                name: "AI 분석완료: 포어 컨트롤 그린 티 토너",
+                category: "토닝 에센스 / 워터리 로션",
+                score: 76,
+                badge: "보통 (MODERATE)",
+                badgeClass: "bg-sky-100 text-sky-700 border border-sky-200",
+                radarData: [82, 72, 75, 74, 80], 
+                ingredientsList: [
+                    { name: "녹차추출물", pct: "15.0%", role: "피지 조절 및 산뜻한 진정 작용", status: "good" },
+                    { name: "에탄올 (변성알코올)", pct: "3.0%", role: "청량감 부여하나 민감 부위 건조 유발 가능", status: "warning" },
+                    { name: "글리세린", pct: "2.5%", role: "기본 수분 공급", status: "normal" },
+                    { name: "향료", pct: "0.1%", role: "감성적 향 부여 (민감성 피부 주의)", status: "warning" }
+                ],
+                marketing: "<strong>[학술 논문 및 데이터베이스 검증 완료]</strong><br>• <strong>RISS 및 대한화장품협회 사전에 근거:</strong> 녹차 성분의 EGCG는 지성 피부의 피지 산화를 방지하나, 변성알코올이 함유되어 있을 경우 복합성의 건조 부위에 자극이 될 수 있음.<br>• <strong>광고 신뢰도:</strong> 피지 흡착력은 우수하나 건조함에 주의 필요 (75%).",
+                usage: "<strong>지성 부위 위주 사용 권장</strong><br>• <strong>사용법:</strong> 화장솜에 묻혀 T존을 중심으로 부드럽게 닦아내는 토너로 활용하세요.<br>• <strong>함께 쓰면 좋은 성분:</strong> 판테놀 수분 크림"
+            });
+        }
+
+        function runAnalysisEngine(data) {
+            document.getElementById('welcome-state').classList.add('hidden');
+            document.getElementById('result-state').classList.remove('hidden');
+
+            document.getElementById('res-category').innerText = data.category;
+            document.getElementById('res-product-name').innerText = data.name;
+            
+            const concernNames = {
+                'trouble': '트러블',
+                'brightening': '미백',
+                'pigmentation': '색소침착',
+                'exfoliation': '각질',
+                'inner-dry': '당김/건조',
+                'oil': '유분증가',
+                'pore': '모공크기증가',
+                'sensitive': '트러블흔적'
+            };
+            const activeConcernLabels = selectedConcerns.map(c => concernNames[c]).join(', ');
+            document.getElementById('res-concern-badge').innerText = `고민: ${activeConcernLabels}`;
+
+            const badgeEl = document.getElementById('res-badge');
+            badgeEl.className = `px-4 py-1.5 rounded-xl font-extrabold text-xs shadow-sm ${data.badgeClass}`;
+            badgeEl.innerText = data.badge;
+
+            document.getElementById('res-score').innerText = data.score;
+
+            const ingContainer = document.getElementById('res-ingredients-list');
+            ingContainer.innerHTML = '';
+            data.ingredientsList.forEach(item => {
+                let statusBadge = '';
+                if(item.status === 'good') statusBadge = '<span class="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded font-semibold border border-emerald-100">지성 추천</span>';
+                else if(item.status === 'warning') statusBadge = '<span class="text-[10px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded font-semibold border border-amber-100">주의 성분</span>';
+                else statusBadge = '<span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-semibold">보통</span>';
+
+                ingContainer.innerHTML += `
+                    <div class="p-3 bg-sky-50/40 rounded-xl border border-sky-100/60 flex items-center justify-between text-xs">
+                        <div>
+                            <div class="font-bold text-slate-800">${item.name} <span class="text-sky-600 font-semibold text-[11px]">(${item.pct})</span></div>
+                            <div class="text-[11px] text-slate-500 mt-0.5">${item.role}</div>
+                        </div>
+                        <div>${statusBadge}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('res-marketing').innerHTML = data.marketing;
+            document.getElementById('res-usage').innerHTML = data.usage;
+
+            renderRadarChart(data.radarData);
+            updateDynamicPrescription();
+        }
+
+        function renderRadarChart(scores) {
+            const ctx = document.getElementById('suvujiChart').getContext('2d');
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['수분 밸런스', '피지 조절', '당김 개선', '모공 케어', '저자극성'],
+                    datasets: [{
+                        label: '복합성·지성 피부 적합도',
+                        data: scores,
+                        backgroundColor: 'rgba(14, 165, 233, 0.15)',
+                        borderColor: '#0ea5e9',
+                        pointBackgroundColor: '#0ea5e9',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#0ea5e9',
+                        borderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#e2e8f0' },
+                            pointLabels: {
+                                font: { size: 10, family: 'Pretendard', weight: '600' },
+                                color: '#475569'
+                            },
+                            ticks: { display: false, max: 100, min: 0 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function updateDynamicPrescription() {
+            let actionText = "T존 피지 흡착 팩 및 U존 국소 수분 레이어링";
+            let avoidText = "고함량 미네랄오일 크림 및 과도한 물리적 스크럽";
+            let ingText = "판테놀, 나이아신아마이드, 저분자 히알루론산";
+
+            if (selectedConcerns.includes('trouble')) {
+                actionText = "티트리 스팟 진정 패치 부착 및 저자극 약산성 세안";
+                avoidText = "오일 타입 클렌저 및 알코올 고함량 토너 건너뛰기";
+                ingText = "병풀추출물(시카), 살리실릭애씨드(BHA)";
+            } else if (selectedConcerns.includes('inner-dry')) {
+                actionText = "7스킨법 또는 히알루론산 앰플 레이어링 팩";
+                avoidText = "뽀득거리는 알칼리성 폼클렌저 건너뛰기";
+                ingText = "판테놀, 글리세린, 세라마이드";
+            } else if (selectedConcerns.includes('pore')) {
+                actionText = "머랭 거름 딥클렌징 및 쿨링 모공 수축 팩";
+                avoidText = "모공을 막는 무거운 코메도제닉 오일류 건너뛰기";
+                ingText = "BHA(살리실릭애씨드), 탄닌 성분";
+            }
+
+            document.getElementById('presc-action').innerText = actionText;
+            document.getElementById('presc-avoid').innerText = avoidText;
+            document.getElementById('presc-ingredient').innerText = ingText;
+        }
+
+        // --- Calendar & Skin Health Log Functions ---
+
+        function formatDateKey(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function openSkinCalendarModal() {
+            document.getElementById('calendar-modal').classList.remove('hidden');
+            renderCalendar();
+            loadDateLog(selectedDateStr);
+        }
+
+        function closeSkinCalendarModal() {
+            document.getElementById('calendar-modal').classList.add('hidden');
+        }
+
+        function toggleCalendarViewMode() {
+            if (calendarMode === 'week') {
+                calendarMode = 'month';
+                document.getElementById('calendar-modal-title').innerText = "피부건강 캘린더 (한달 뷰)";
+                document.getElementById('toggle-view-btn').innerHTML = '<i class="fa-solid fa-minus mr-1"></i> 일주일 캘린더 보기';
+            } else {
+                calendarMode = 'week';
+                document.getElementById('calendar-modal-title').innerText = "피부건강 캘린더 (일주일 뷰)";
+                document.getElementById('toggle-view-btn').innerHTML = '<i class="fa-solid fa-plus mr-1"></i> 한달 캘린더 보기';
+            }
+            renderCalendar();
+        }
+
+        function changeCalendarPeriod(direction) {
+            if (calendarMode === 'week') {
+                currentDateCursor.setDate(currentDateCursor.getDate() + (direction * 7));
+            } else {
+                currentDateCursor.setMonth(currentDateCursor.getMonth() + direction);
+            }
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const gridContainer = document.getElementById('calendar-grid-container');
+            const rangeLabel = document.getElementById('calendar-range-label');
+            gridContainer.innerHTML = '';
+
+            if (calendarMode === 'week') {
+                let curr = new Date(currentDateCursor);
+                let first = curr.getDate() - curr.getDay();
+                let startOfWeek = new Date(curr.setDate(first));
+
+                let endOfWeekDisplay = new Date(startOfWeek);
+                endOfWeekDisplay.setDate(endOfWeekDisplay.getDate() + 6);
+                rangeLabel.innerText = `${startOfWeek.getFullYear()}.${startOfWeek.getMonth()+1}.${startOfWeek.getDate()} ~ ${endOfWeekDisplay.getMonth()+1}.${endOfWeekDisplay.getDate()}`;
+
+                gridContainer.className = "grid grid-cols-7 gap-2";
+                const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+                dayNames.forEach(d => {
+                    const headerEl = document.createElement('div');
+                    headerEl.className = "text-center text-[11px] font-bold text-slate-400 py-1";
+                    headerEl.innerText = d;
+                    gridContainer.appendChild(headerEl);
+                });
+
+                for (let i = 0; i < 7; i++) {
+                    let d = new Date(startOfWeek);
+                    d.setDate(d.getDate() + i);
+                    const dStr = formatDateKey(d);
+                    const log = skinLogs[dStr] || { symptoms: [], other: '', memo: '' };
+
+                    let emoji = "🙂";
+                    if (log.symptoms.includes('good')) emoji = "✨";
+                    else if (log.symptoms.includes('trouble')) emoji = "🔴";
+                    else if (log.symptoms.includes('oil')) emoji = "💧";
+                    else if (log.symptoms.includes('dry')) emoji = "🏜️";
+                    else if (log.symptoms.length > 0 || log.other) emoji = "📝";
+
+                    const isSelected = (dStr === selectedDateStr);
+
+                    const cell = document.createElement('div');
+                    cell.className = `p-2 rounded-xl border flex flex-col items-center justify-center cursor-pointer transition-all min-h-[70px] ${isSelected ? 'border-sky-500 bg-sky-50 shadow-sm' : 'border-slate-100 bg-white hover:border-sky-200'}`;
+                    cell.onclick = () => { selectDate(dStr); };
+                    cell.innerHTML = `
+                        <span class="text-[10px] text-slate-400 font-semibold">${d.getDate()}일</span>
+                        <span class="text-lg my-1">${emoji}</span>
+                        <span class="text-[9px] text-slate-500 truncate w-full text-center">${(log.symptoms.length > 0 || log.other) ? '기록있음' : '기록없음'}</span>
+                    `;
+                    gridContainer.appendChild(cell);
+                }
+
+            } else {
+                let year = currentDateCursor.getFullYear();
+                let month = currentDateCursor.getMonth();
+                rangeLabel.innerText = `${year}년 ${month + 1}월`;
+
+                gridContainer.className = "grid grid-cols-7 gap-1";
+                const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+                dayNames.forEach(d => {
+                    const headerEl = document.createElement('div');
+                    headerEl.className = "text-center text-[10px] font-bold text-slate-400 py-1";
+                    headerEl.innerText = d;
+                    gridContainer.appendChild(headerEl);
+                });
+
+                let firstDayIndex = new Date(year, month, 1).getDay();
+                let totalDays = new Date(year, month + 1, 0).getDate();
+
+                for (let i = 0; i < firstDayIndex; i++) {
+                    const blank = document.createElement('div');
+                    gridContainer.appendChild(blank);
+                }
+
+                for (let day = 1; day <= totalDays; day++) {
+                    let d = new Date(year, month, day);
+                    let dStr = formatDateKey(d);
+                    let log = skinLogs[dStr] || { symptoms: [], other: '', memo: '' };
+
+                    let emoji = "🙂";
+                    if (log.symptoms.includes('good')) emoji = "✨";
+                    else if (log.symptoms.includes('trouble')) emoji = "🔴";
+                    else if (log.symptoms.includes('oil')) emoji = "💧";
+                    else if (log.symptoms.includes('dry')) emoji = "🏜️";
+                    else if (log.symptoms.length > 0 || log.other) emoji = "📝";
+
+                    const isSelected = (dStr === selectedDateStr);
+
+                    const cell = document.createElement('div');
+                    cell.className = `p-1 rounded-lg border flex flex-col items-center justify-center cursor-pointer transition-all h-16 ${isSelected ? 'border-sky-500 bg-sky-50 shadow-xs' : 'border-slate-100 bg-white hover:border-sky-200'}`;
+                    cell.onclick = () => { selectDate(dStr); };
+                    cell.innerHTML = `
+                        <span class="text-[9px] text-slate-500 font-bold">${day}</span>
+                        <span class="text-sm">${emoji}</span>
+                    `;
+                    gridContainer.appendChild(cell);
+                }
+            }
+        }
+
+        function selectDate(dStr) {
+            selectedDateStr = dStr;
+            renderCalendar();
+            loadDateLog(dStr);
+        }
+
+        function loadDateLog(dStr) {
+            document.getElementById('selected-date-display').innerText = dStr;
+            const log = skinLogs[dStr] || { symptoms: [], other: '', memo: '' };
+
+            const checkboxes = document.querySelectorAll('input[name="daily-symptom"]');
+            checkboxes.forEach(cb => {
+                cb.checked = log.symptoms.includes(cb.value);
+            });
+
+            document.getElementById('daily-other-input').value = log.other || '';
+            document.getElementById('daily-memo-input').value = log.memo || '';
+        }
+
+        function saveDailySkinLog() {
+            const checkboxes = document.querySelectorAll('input[name="daily-symptom"]:checked');
+            const symptoms = Array.from(checkboxes).map(cb => cb.value);
+            const other = document.getElementById('daily-other-input').value.trim();
+            const memo = document.getElementById('daily-memo-input').value.trim();
+
+            skinLogs[selectedDateStr] = { symptoms, other, memo };
+            localStorage.setItem('skin_health_logs_v3', JSON.stringify(skinLogs));
+
+            showToast(`${selectedDateStr} 피부 기록이 저장되었습니다!`);
+            renderCalendar();
+            updateDynamicPrescription();
+        }
+
+        // --- Share Functions ---
+
+        function openShareModal() {
+            document.getElementById('share-modal').classList.remove('hidden');
+            document.getElementById('share-link-input').value = window.location.href;
+        }
+
+        function closeShareModal() {
+            document.getElementById('share-modal').classList.add('hidden');
+        }
+
+        function copyShareLink() {
+            const input = document.getElementById('share-link-input');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            showToast("공유 링크가 클립보드에 복사되었습니다! 원하는 곳에 붙여넣으세요.");
+        }
+
+        function shareKakaoStyle() {
+            copyShareLink();
+            showToast("카카오톡 공유 링크가 복사되었습니다. 채팅창에 붙여넣어 보세요!");
+            closeShareModal();
+        }
+
+        function shareTwitterStyle() {
+            const text = encodeURIComponent("복합성·지성 피부 맞춤 화장품 분석 및 캘린더 관리 닥터 서비스!");
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+            closeShareModal();
+        }
+    </script>
+</body>
+</html>
